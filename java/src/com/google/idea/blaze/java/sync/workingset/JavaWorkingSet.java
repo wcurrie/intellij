@@ -78,6 +78,10 @@ public class JavaWorkingSet {
     return false;
   }
 
+  public boolean isEmpty() {
+    return modifiedBuildFileRelativePaths.isEmpty() && modifiedJavaFileRelativePaths.isEmpty();
+  }
+
   public boolean isInWorkingSet(ArtifactLocation artifactLocation) {
     return isInWorkingSet(artifactLocation.getRelativePath());
   }
