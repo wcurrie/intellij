@@ -24,8 +24,8 @@ import com.google.idea.blaze.base.settings.BuildSystem;
 /** Verifies that the available Bazel version is supported by this plugin. */
 public class BazelVersionChecker implements BuildSystemVersionChecker {
 
-  // prior to version 0.5 there was no BEP support
-  private static final BazelVersion OLDEST_SUPPORTED_VERSION = new BazelVersion(0, 5, 0);
+  // prior to version 0.16.0 there was no support for some cc_common starlark APIs.
+  private static final BazelVersion OLDEST_SUPPORTED_VERSION = new BazelVersion(0, 16, 0);
 
   @Override
   public boolean versionSupported(BlazeContext context, BlazeVersionData version) {

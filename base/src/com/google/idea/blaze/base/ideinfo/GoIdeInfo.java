@@ -21,6 +21,7 @@ import com.google.devtools.intellij.ideinfo.IntellijIdeInfo;
 import com.google.idea.blaze.base.model.primitives.Kind;
 import com.google.idea.blaze.base.model.primitives.Label;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -119,6 +120,26 @@ public final class GoIdeInfo implements ProtoWrapper<IntellijIdeInfo.GoIdeInfo> 
         + getImportPath()
         + "\n"
         + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GoIdeInfo goIdeInfo = (GoIdeInfo) o;
+    return Objects.equals(sources, goIdeInfo.sources)
+        && Objects.equals(importPath, goIdeInfo.importPath)
+        && Objects.equals(libraryLabel, goIdeInfo.libraryLabel)
+        && libraryKind == goIdeInfo.libraryKind;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(sources, importPath, libraryLabel, libraryKind);
   }
 
   /** Replaces import path from the aspect based on target label and kind. */

@@ -26,9 +26,10 @@ import com.google.idea.blaze.base.model.SyncData;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
-class JdepsState implements SyncData<ProjectData.JdepsState> {
+final class JdepsState implements SyncData<ProjectData.JdepsState> {
   final ImmutableMap<File, Long> fileState;
   final ImmutableMap<File, TargetKey> fileToTargetMap;
   final ImmutableMap<TargetKey, List<String>> targetToJdeps;
@@ -70,6 +71,25 @@ class JdepsState implements SyncData<ProjectData.JdepsState> {
         .putAllFileToTarget(ProtoWrapper.map(fileToTargetMap, File::getPath, TargetKey::toProto))
         .setTargetToJdeps(targetToJdepsBuilder.build())
         .build();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    JdepsState that = (JdepsState) o;
+    return Objects.equals(fileState, that.fileState)
+        && Objects.equals(fileToTargetMap, that.fileToTargetMap)
+        && Objects.equals(targetToJdeps, that.targetToJdeps);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(fileState, fileToTargetMap, targetToJdeps);
   }
 
   static Builder builder() {

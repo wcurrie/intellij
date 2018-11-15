@@ -95,8 +95,11 @@ java_library(
 
 # neverlink library exposed so other plugins can optionally depend on it
 java_library(
-    name = "event_logger_api",
-    srcs = ["src/com/google/idea/blaze/base/logging/EventLogger.java"],
+    name = "logging_api",
+    srcs = [
+        "src/com/google/idea/blaze/base/logging/EventLogger.java",
+        "src/com/google/idea/blaze/base/logging/LoggedSettingsProvider.java",
+    ],
     neverlink = 1,
     deps = [
         "//intellij_platform_sdk:jsr305",

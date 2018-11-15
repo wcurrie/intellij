@@ -28,6 +28,7 @@ DEPS = [
     "malloc",  # From cc_binary rules
     "_java_toolchain",  # From java rules
     "deps",
+    "jars",  # from java_import rules
     "exports",
     "java_lib",  # From old proto_library rules
     "_android_sdk",  # from android rules
@@ -292,26 +293,19 @@ def collect_cpp_info(target, ctx, semantics, ide_info, ide_info_file, output_gro
     headers = artifacts_from_target_list_attr(ctx, "hdrs")
     textual_headers = artifacts_from_target_list_attr(ctx, "textual_hdrs")
 
-    target_includes = []
-    if hasattr(ctx.rule.attr, "includes"):
-        target_includes = ctx.rule.attr.includes
-    target_defines = []
-    if hasattr(ctx.rule.attr, "defines"):
-        target_defines = ctx.rule.attr.defines
     target_copts = []
     if hasattr(ctx.rule.attr, "copts"):
         target_copts += ctx.rule.attr.copts
     if hasattr(semantics, "cc") and hasattr(semantics.cc, "get_default_copts"):
         target_copts += semantics.cc.get_default_copts(ctx)
 
+    # Check cc_provider for 'includes' and 'defines' target attribute values.
     cc_provider = target.cc
 
     c_info = struct_omit_none(
         source = sources,
         header = headers,
         textual_header = textual_headers,
-        target_include = target_includes,
-        target_define = target_defines,
         target_copt = target_copts,
         transitive_include_directory = cc_provider.include_directories,
         transitive_quote_include_directory = cc_provider.quote_include_directories,
@@ -391,25 +385,16 @@ def collect_c_toolchain_info(target, ctx, semantics, ide_info, ide_info_file, ou
             action_name = "c++-compile",
             variables = cpp_variables,
         )
-        compiler_options = []
-        unfiltered_compiler_options = []
-    elif hasattr(cpp_toolchain, "unfiltered_compiler_options"):
-        cpp_options = cpp_toolchain.cxx_options()
-        compiler_options = cpp_toolchain.compiler_options()
-        c_options = cpp_toolchain.c_options()
-        unfiltered_compiler_options = cpp_toolchain.unfiltered_compiler_options([])
     else:
-        cpp_options = cpp_fragment.cxx_options(ctx.features)
-        c_options = cpp_fragment.c_options
-        compiler_options = cpp_fragment.compiler_options(ctx.features)
-        unfiltered_compiler_options = cpp_fragment.unfiltered_compiler_options(ctx.features)
+        # See the plugin's BazelVersionChecker. We should have checked that we are Bazel 0.16+,
+        # so get_memory_inefficient_command_line should be available.
+        c_options = []
+        cpp_options = []
 
     c_toolchain_info = struct_omit_none(
         target_name = cpp_toolchain.target_gnu_system_name,
-        base_compiler_option = compiler_options,
         c_option = c_options,
         cpp_option = cpp_options,
-        unfiltered_compiler_option = unfiltered_compiler_options,
         cpp_executable = str(cpp_toolchain.compiler_executable),
         built_in_include_directory = [str(d) for d in cpp_toolchain.built_in_include_directories],
     )
@@ -739,7 +724,7 @@ def intellij_info_aspect_impl(target, ctx, semantics):
         elif ctx.rule.kind == "aar_import":
             direct_exports = collect_targets_from_attrs(rule_attrs, ["exports"])
             export_deps = export_deps + make_deps(direct_exports, COMPILE_TIME)
-    export_deps = list(depset(export_deps))
+    export_deps = depset(export_deps).to_list()
 
     # runtime_deps
     runtime_dep_targets = collect_targets_from_attrs(
@@ -747,7 +732,7 @@ def intellij_info_aspect_impl(target, ctx, semantics):
         semantics_extra_deps(RUNTIME_DEPS, semantics, "extra_runtime_deps"),
     )
     runtime_deps = make_deps(runtime_dep_targets, RUNTIME)
-    all_deps = list(depset(compiletime_deps + runtime_deps))
+    all_deps = depset(compiletime_deps + runtime_deps).to_list()
 
     # extra prerequisites
     extra_prerequisite_targets = collect_targets_from_attrs(

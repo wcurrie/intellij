@@ -29,11 +29,13 @@ import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Configuratio
 public class NonBlazeProducerSuppressor extends AbstractProjectComponent {
 
   private static final ImmutableList<Class<? extends RunConfigurationProducer<?>>>
+      // ImmutableList.of(...) is broken: https://youtrack.jetbrains.com/issue/SCL-14531
       PRODUCERS_TO_SUPPRESS =
-          ImmutableList.of(
-              ScalaApplicationConfigurationProducer.class,
-              Specs2ConfigurationProducer.class,
-              ScalaTestConfigurationProducer.class);
+      ImmutableList.<Class<? extends RunConfigurationProducer<?>>>builder()
+          .add(ScalaApplicationConfigurationProducer.class)
+          .add(Specs2ConfigurationProducer.class)
+          .add(ScalaTestConfigurationProducer.class)
+          .build();
 
   public NonBlazeProducerSuppressor(Project project) {
     super(project);
