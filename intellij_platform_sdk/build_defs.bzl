@@ -2,9 +2,9 @@
 
 # The current indirect ij_product mapping (eg. "intellij-latest")
 INDIRECT_IJ_PRODUCTS = {
-    "intellij-latest": "intellij-2018.1",
+    "intellij-latest": "intellij-2018.2",
     "intellij-beta": "intellij-2018.2",
-    "intellij-ue-latest": "intellij-ue-2018.1",
+    "intellij-ue-latest": "intellij-ue-2018.2",
     "intellij-ue-beta": "intellij-ue-2018.2",
     "android-studio-latest": "android-studio-3.2",
     "android-studio-beta": "android-studio-3.3",
